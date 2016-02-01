@@ -14,7 +14,7 @@ const router = express.Router();
 
 // test route
 router.get('/', function (req, res) {
-    res.json({message: 'welcome'});
+    res.json({message: 'welcome' + req.query.name});
 });
 
 // prefixed all routes with /api
