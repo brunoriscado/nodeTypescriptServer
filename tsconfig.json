@@ -1,11 +1,11 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es3",
+        "target": "ES6",
         "noImplicitAny": false,
-        "outDir": "built",
+        "outDir": "src/js",
         "rootDir": ".",
-        "sourceMap": false
+        "sourceMap": true
     },
     "exclude": [
         "node_modules"
