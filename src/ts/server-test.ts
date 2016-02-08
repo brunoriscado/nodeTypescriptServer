@@ -20,12 +20,15 @@ const router = express.Router();
 router.get('/', function (req, res) {
     res.json(userDAO.read(req.query.id));
 });
+
 router.post('/', function (req, res) {
     res.json(userDAO.create(req.body));
 });
+
 router.put('/', function (req, res) {
     res.json({result : userDAO.update(req.body)});
 });
+
 router.delete('/', function (req, res) {
     res.json({result : userDAO.delete(req.query.id)});
 });
