@@ -1,12 +1,16 @@
 {
     "compilerOptions": {
+        "declaration": true,
         "module": "commonjs",
+        "moduleResolution": "node",
         "target": "ES6",
         "noImplicitAny": false,
-        "outDir": "src/js",
-        "rootDir": ".",
+        "outDir": "./lib",
         "sourceMap": true
     },
+    "tsFiles": [
+        "src/**/*.ts"
+    ],
     "exclude": [
         "node_modules"
     ]
