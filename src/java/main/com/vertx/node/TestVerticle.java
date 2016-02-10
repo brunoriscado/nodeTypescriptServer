@@ -35,7 +35,7 @@ public class TestVerticle extends AbstractVerticle {
                         new PermittedOptions().setAddress(SERVICE_ADDRESS));
 
         /* Configure bridge at this HTTP/WebSocket URI. */
-        router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options));
+        router.route("/eventbus/*")..handler(SockJSHandler.create(vertx).bridge(options));
 
         /* Install router into vertx. */
         vertx.createHttpServer()

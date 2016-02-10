@@ -25,4 +25,3 @@ sourceCompatibility = 1.8
 apply from: 'gradle/dependencies.gradle'
 
 apply from: 'gradle/tasks.gradle'
-
