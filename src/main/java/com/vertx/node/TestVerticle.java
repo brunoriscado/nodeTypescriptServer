@@ -16,14 +16,13 @@ import org.slf4j.LoggerFactory;
 public class TestVerticle extends AbstractVerticle {
 
     private static final String SERVICE_ADDRESS = "TEST-SERVICE";
-    private final Logger logger = LoggerFactory.getLogger(TestVerticle.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(TestVerticle.class);
 
     @Override
     public void start() {
 
         /* Create vertx web router. */
         final Router router = Router.router(vertx);
-
 
         /* Install our original "REST" handler at the /hello/ uri. */
         router.route("/hello/*").handler(event -> handleHttpRequestToHelloWorld(event.request()));
@@ -59,10 +58,10 @@ public class TestVerticle extends AbstractVerticle {
            */
                     if (response.succeeded()) {
                 /* Send the result to the http connection. */
-                        logger.debug("Successfully invoked HelloWorld service {}", response.result().body());
+                        LOGGER.debug("Successfully invoked HelloWorld service {}", response.result().body());
                         httpRequest.response().end(response.result().body().toString());
                     } else {
-                        logger.error("Can't send message to hello world service", response.cause());
+                        LOGGER.error("Can't send message to hello world service", response.cause());
                         //noinspection ThrowableResultOfMethodCallIgnored
                         httpRequest.response().setStatusCode(500).end(response.cause().getMessage());
                     }

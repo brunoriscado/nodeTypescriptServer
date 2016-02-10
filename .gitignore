@@ -4,5 +4,6 @@ typings/
 .idea/
 build/
 .gradle/
+*.iml
 
 
