@@ -28,6 +28,7 @@ dependencies {
     compile("io.vertx:vertx-core:$vertxVersion")
     compile("io.vertx:vertx-web:$vertxVersion")
     compile("io.vertx:vertx-rx-java:$vertxVersion")
+    compile("io.vertx:vertx-service-factory:$vertxVersion")
 
     //logging
     compile("org.slf4j:slf4j-api:$slf4jVersion")
@@ -55,7 +56,6 @@ dependencies {
     testCompile("ch.qos.logback:logback-classic:$logbackVersion")
     testCompile("org.slf4j:jcl-over-slf4j:$slf4jVersion")
     testCompile("io.vertx:vertx-unit:$vertxVersion")
-    testCompile("io.vertx:vertx-service-factory:$vertxVersion")
     testCompile("org.mockito:mockito-all:$mockitoVersion")
     testCompile("org.codehaus.groovy:groovy-all:$groovyVersion")
     testCompile("com.jayway.jsonpath:json-path:$jsonPathVersion")

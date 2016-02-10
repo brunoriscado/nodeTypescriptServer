@@ -28,7 +28,7 @@ public class Runner {
                 latch.countDown();
             }
             else {
-                LOGGER.error("Error starting DMP-Manager", result.cause());
+                LOGGER.error("Error starting Runner", result.cause());
                 throw new RuntimeException(result.cause());
             }
         });

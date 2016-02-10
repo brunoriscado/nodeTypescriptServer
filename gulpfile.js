@@ -14,25 +14,25 @@ function errorLog (error) {
   	this.emit('end');
 }
 
-//The --sourcemap option is used to generate a .js.map file.
-//It is used by debuggers to map the generated JavaScript to the source TypeScript.
-gulp.task('typescript-compile', function() {
-  	return tsProject.src([path.join('.', 'src', 'ts', '**', '*.ts')])
-		.pipe(ts(tsProject))
-    	// .pipe(sourcemaps.init())
-    	// .pipe(sourcemaps.write("maps")) //fix the mapping folder structure
-    	.on('error', errorLog)
-    	.pipe(gulp.dest('lib')); //fix the dest folder structure
-});
-
-
-// gulp.task('typescript-compile',  function (cb) {
-//   exec('tsc', function (err, stdout, stderr) {
-//     console.log(stdout);
-//     console.log(stderr);
-//     cb(err);
-//   });
+// //The --sourcemap option is used to generate a .js.map file.
+// //It is used by debuggers to map the generated JavaScript to the source TypeScript.
+// gulp.task('typescript-compile', function() {
+//   	return tsProject.src([path.join('.', 'src', 'ts', '**', '*.ts')])
+// 		.pipe(ts(tsProject))
+//     	// .pipe(sourcemaps.init())
+//     	// .pipe(sourcemaps.write("maps")) //fix the mapping folder structure
+//     	.on('error', errorLog)
+//     	.pipe(gulp.dest('lib')); //fix the dest folder structure
 // });
+
+
+gulp.task('typescript-compile',  function (cb) {
+  exec('tsc', function (err, stdout, stderr) {
+    console.log(stdout);
+    console.log(stderr);
+    cb(err);
+  });
+});
 
 // watch the files for changes and rebuild everything
 gulp.task('watch', function () {
@@ -44,7 +44,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task('run', function () {
-    new forever.Monitor('lib/server-test.js').start();
+    new forever.Monitor('lib/server-test.js').start(['--harmony']);
 });
 
 gulp.task('default', ['clean', 'typescript-compile', 'watch']);
