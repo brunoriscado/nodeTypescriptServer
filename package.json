@@ -14,6 +14,8 @@
     "forever-monitor": "^1.7.0",
     "gulp": "^3.9.1",
     "gulp-tsc": "^1.1.4",
-    "gulp-typescript": "^2.11.0"
+    "gulp-typescript": "^2.11.0",
+    "sockjs-client": "^1.0.3",
+    "vertx3-eventbus-client": "^3.2.1"
   }
 }

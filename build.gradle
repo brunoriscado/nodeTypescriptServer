@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
+plugins{
+    id "java"
+    id "idea"
+    id "maven"
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+group = 'com.vertx.node'
+version = this.properties['branch'] + "-" + this.properties['buildNumber']
+sourceCompatibility = 1.8
+
+
+apply from: 'gradle/dependencies.gradle'
+
+apply from: 'gradle/tasks.gradle'
+
