@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestVerticle extends AbstractVerticle {
 
-    private final Logger logger = LoggerFactory.getLogger(WebVerticle.class);
+    private final Logger logger = LoggerFactory.getLogger(TestVerticle.class);
 
     @Override
     public void start() {
