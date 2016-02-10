@@ -1,0 +1,3 @@
+{
+  "main": "main:com.vertx.node.TestVerticle"
+}

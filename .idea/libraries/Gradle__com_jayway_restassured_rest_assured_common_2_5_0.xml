@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: com.jayway.restassured:rest-assured-common:2.5.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jayway.restassured/rest-assured-common/2.5.0/cbd9cb9f033dc8c4b70d8217271fab5833f1e70c/rest-assured-common-2.5.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jayway.restassured/rest-assured-common/2.5.0/2785e2ba526a21317b3cc2777ddcb5aa065996b8/rest-assured-common-2.5.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.jayway.restassured/rest-assured-common/2.5.0/f3959567e5b3e2317d3ec4422670053ccacee051/rest-assured-common-2.5.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

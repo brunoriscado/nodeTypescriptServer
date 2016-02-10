@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: io.vertx:vertx-service-factory:3.2.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.vertx/vertx-service-factory/3.2.0/1c51c3075bae744287d634830969fd7ffd68e295/vertx-service-factory-3.2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.vertx/vertx-service-factory/3.2.0/d63d84cdd39cd856661655712eef7c8512ccf022/vertx-service-factory-3.2.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.vertx/vertx-service-factory/3.2.0/aed60c33aa543cc26a41119c7b119bfa0a939980/vertx-service-factory-3.2.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,4 +1,9 @@
 lib/
 node_modules/
 typings/
+.idea/
+build/
+.gradle/
+*.iml
+
 
