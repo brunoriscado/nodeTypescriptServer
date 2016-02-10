@@ -22,7 +22,7 @@ gulp.task('typescript-compile', function() {
     	// .pipe(sourcemaps.init())
     	// .pipe(sourcemaps.write("maps")) //fix the mapping folder structure
     	.on('error', errorLog)
-    	.pipe(gulp.dest('js')); //fix the dest folder structure
+    	.pipe(gulp.dest('lib')); //fix the dest folder structure
 });
 
 

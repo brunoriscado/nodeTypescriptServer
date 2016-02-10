@@ -1,4 +1,7 @@
 {
+    "filesDefinition": {
+        "files": ["typings/main.d.ts"]
+    },
     "compilerOptions": {
         "declaration": true,
         "module": "commonjs",
@@ -12,7 +15,9 @@
         "src/**/*.ts"
     ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "typings/browser.d.ts",
+        "typings/browser"
     ]
 }
 

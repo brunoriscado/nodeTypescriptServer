@@ -1,6 +1,4 @@
-/// <reference path="../../typings/express/express.d.ts" />
-/// <reference path="../../typings/body-parser/body-parser.d.ts" />
-
+/// <reference path="../../typings/main.d.ts" />
 import * as express from 'express';
 const app = express();
 import * as bodyParser from 'body-parser';
