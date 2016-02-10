@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestVerticle extends AbstractVerticle {
 
+    private static final String SERVICE_ADDRESS = "TEST-SERVICE";
     private final Logger logger = LoggerFactory.getLogger(TestVerticle.class);
 
     @Override
@@ -31,7 +32,7 @@ public class TestVerticle extends AbstractVerticle {
         /* Allow Hello World service to be exposed to Node.js. */
         final BridgeOptions options = new BridgeOptions()
                 .addInboundPermitted(
-                        new PermittedOptions().setAddress(Services.HELLO_WORLD.toString()));
+                        new PermittedOptions().setAddress(SERVICE_ADDRESS));
 
         /* Configure bridge at this HTTP/WebSocket URI. */
         router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options));
@@ -49,8 +50,8 @@ public class TestVerticle extends AbstractVerticle {
     private void handleHttpRequestToHelloWorld(final HttpServerRequest httpRequest) {
 
         /* Invoke using the event bus. */
-        vertx.eventBus().send(Services.HELLO_WORLD.toString(),
-                HelloWorldOperations.SAY_HELLO_WORLD.toString(), response -> {
+        vertx.eventBus().send(SERVICE_ADDRESS,
+                "Test String", response -> {
 
            /* If the response was successful, this means we were able to execute the operation on
               the HelloWorld service.
