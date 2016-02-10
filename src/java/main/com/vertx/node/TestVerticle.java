@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * This gets started by the MainVerticle.
  * It configures the event bus bridge and install the REST routes.
  */
-public class WebVerticle extends AbstractVerticle {
+public class TestVerticle extends AbstractVerticle {
 
     private final Logger logger = LoggerFactory.getLogger(WebVerticle.class);
 
