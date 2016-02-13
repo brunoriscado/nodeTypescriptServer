@@ -47,7 +47,7 @@ gulp.task('run', function () {
     new forever.Monitor('lib/server-test.js').start(['--harmony']);
 });
 
-gulp.task('default', ['clean', 'typescript-compile', 'watch']);
+gulp.task('default', ['clean', 'typescript-compile']);
 
 // gulp.task('test', 'Runs the Jasmine test specs', ['typescript-compile'], function () {
 //   return gulp.src('test/*.js')

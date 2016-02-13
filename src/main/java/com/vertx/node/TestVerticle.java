@@ -1,7 +1,9 @@
 package com.vertx.node;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
@@ -21,50 +23,29 @@ public class TestVerticle extends AbstractVerticle {
     @Override
     public void start() {
 
-        /* Create vertx web router. */
         final Router router = Router.router(vertx);
+        router.route("/eventbus/*").handler(createSocketJSHandler());
 
-        /* Install our original "REST" handler at the /hello/ uri. */
-        router.route("/hello/*").handler(event -> handleHttpRequestToHelloWorld(event.request()));
+        vertx.eventBus().consumer(SERVICE_ADDRESS, event -> {
+            System.out.println("A event into the service address... ");
+            event.reply(Json.encode("{\"time\":\""+System.currentTimeMillis()+"\"}"));
+        });
 
-
-        /* Allow Hello World service to be exposed to Node.js. */
-        final BridgeOptions options = new BridgeOptions()
-                .addInboundPermitted(
-                        new PermittedOptions().setAddress(SERVICE_ADDRESS));
-
-        /* Configure bridge at this HTTP/WebSocket URI. */
-        router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options));
-
-        /* Install router into vertx. */
         vertx.createHttpServer()
                 .requestHandler(router::accept)
-                .listen(8080);
+                .listen(8089);
     }
 
-    /** This REST endpoint if for hello.
-     *  It invokes the hello world service via the event bus.
-     * @param httpRequest HTTP request from vertx.
-     */
-    private void handleHttpRequestToHelloWorld(final HttpServerRequest httpRequest) {
+    private SockJSHandler createSocketJSHandler() {
 
-        /* Invoke using the event bus. */
-        vertx.eventBus().send(SERVICE_ADDRESS,
-                "Test String", response -> {
-
-           /* If the response was successful, this means we were able to execute the operation on
-              the HelloWorld service.
-              Pass the results to the http request's response.
-           */
-                    if (response.succeeded()) {
-                /* Send the result to the http connection. */
-                        LOGGER.debug("Successfully invoked HelloWorld service {}", response.result().body());
-                        httpRequest.response().end(response.result().body().toString());
-                    } else {
-                        LOGGER.error("Can't send message to hello world service", response.cause());
-                        //noinspection ThrowableResultOfMethodCallIgnored
-                        httpRequest.response().setStatusCode(500).end(response.cause().getMessage());
-                    }
-                });
+        PermittedOptions permittedOptions = new PermittedOptions().setAddress(SERVICE_ADDRESS);
+        BridgeOptions options = new BridgeOptions()
+                .addInboundPermitted(permittedOptions)
+                .addOutboundPermitted(permittedOptions);
+        return SockJSHandler.create(vertx).bridge(options, event -> {
+                                            LOGGER.info("A socket was created");
+                                            event.complete(true);
+                                    });
     }
+
 }

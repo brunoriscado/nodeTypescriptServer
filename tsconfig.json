@@ -5,11 +5,12 @@
     "compilerOptions": {
         "declaration": true,
         "module": "commonjs",
-        "moduleResolution": "node",
-        "target": "ES6",
+        "target":"ES5",
+        "moduleResolution": "classic",
         "noImplicitAny": false,
         "outDir": "./lib",
-        "sourceMap": true
+        "sourceMap": true,
+        "noEmitOnError": false
     },
     "tsFiles": [
         "src/**/*.ts"

@@ -1,4 +1,6 @@
 /// <reference path="dao.ts" />
+"use strict";
+
 export class InMemoryUserDAO implements DAO.DAO<Model.IUser> {
     private id:number;
     private users:{ [id:number]:Model.IUser; };
