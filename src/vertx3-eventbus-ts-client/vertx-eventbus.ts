@@ -14,13 +14,8 @@
  *   You may elect to redistribute this code under either of these licenses.
  */
 /// <reference path="../../typings/main.d.ts" />
-import * as SocketIOClient from 'socket.io-client';
+import * as SockJS from 'sockjs-client';
 import * as Vertx from 'vertx.io-eventbus';
-
-
-interface EventBusOptions extends SocketIOClient.ConnectOpts{
-    vertxbus_ping_interval?:number;
-} 
 
 enum EventBusState{
        CONNECTING,
@@ -37,9 +32,9 @@ export default class EventBus implements Vertx {
     
     private static _url:string;
     private static _uniqueInstance:EventBus;
-    private static _socket:SocketIOClient.Socket;
+    private static _socket:__SockJSClient.SockJSClass;
     private defaultHeaders: {[key:string]:string};
-    private pingInterval:number = 5000;
+    private pingInterval:number = 55000;
     private pingTimerID:NodeJS.Timer;
     private static state:EventBusState;
     private handlers:Array<Handler>;
@@ -50,28 +45,27 @@ export default class EventBus implements Vertx {
         if (EventBus._url){
                 
                     EventBus.state = EventBusState.CONNECTING;
-                    EventBus._socket=SocketIOClient.connect(EventBus._url, options);
+                    EventBus._socket =new SockJS(EventBus._url);
                     if (options && options.vertxbus_ping_interval){
                         this.pingInterval = options.vertxbus_ping_interval;
                     }
                     
-                    EventBus._socket.on('connecting', function(){
+                    EventBus._socket.onopen = function(){
                         this.pingTimerID = setInterval(function(){
                             EventBus._socket.send(JSON.stringify("{type:\'ping\'}"));
                         }, this.pingInterval);
                         EventBus.state = EventBusState.OPEN;
-                        //this.onOpen(callbackOnOpen);
-                    });
-                    EventBus._socket.on('onclose', function(){
+                    };
+                    
+                    EventBus._socket.onclose = function() {
                         EventBus.state=EventBusState.CLOSED;
                         if (this.pingTimerID){
                             clearInterval(this.pingTimerID);
                             this.onClose(callbackOnClose);
                         }
-                    });
+                    };
                     
-                    
-                    EventBus._socket.on('message', function(e:any){
+                    EventBus._socket.onmessage = function (e:any) {
                         let json = JSON.parse(e.data);
                         if (json.replyAddress){
                             Object.defineProperty(json, 'reply', {
@@ -110,9 +104,8 @@ export default class EventBus implements Vertx {
                             }
                         }
                         
-                    });
+                    };
                     
-                    EventBus._socket.open();
         }
     }
     
@@ -257,6 +250,7 @@ export default class EventBus implements Vertx {
     }
     
     private checkEventBusOpen():void{
+        EventBus.state = EventBusState.OPEN;
         if (EventBus.state != EventBusState.OPEN ) {
             throw new Error('INVALID_STATE_ERR');
         }
