@@ -36,7 +36,7 @@ gulp.task('typescript-compile',  function (cb) {
 
 // watch the files for changes and rebuild everything
 gulp.task('watch', function () {
-  	gulp.watch(['src/ts/**/*.ts'], ['typescript-compile']);
+  	gulp.watch(['src/**/*.ts'], ['typescript-compile']);
 });
 
 gulp.task('clean', function() {

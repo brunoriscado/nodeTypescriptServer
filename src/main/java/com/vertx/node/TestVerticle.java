@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestVerticle extends AbstractVerticle {
 
+    private static final String SERVICE_PING = "ping";
     private static final String SERVICE_ADDRESS = "TEST-SERVICE";
     private final Logger LOGGER = LoggerFactory.getLogger(TestVerticle.class);
 
@@ -29,6 +30,11 @@ public class TestVerticle extends AbstractVerticle {
         vertx.eventBus().consumer(SERVICE_ADDRESS, event -> {
             System.out.println("A event into the service address... ");
             event.reply(Json.encode("{\"time\":\""+System.currentTimeMillis()+"\"}"));
+        });
+
+        vertx.eventBus().consumer(SERVICE_PING, event -> {
+            System.out.println("incoming ping... ");
+            event.reply(Json.encode("{\"pong\":\""+System.currentTimeMillis()+"\"}"));
         });
 
         vertx.createHttpServer()

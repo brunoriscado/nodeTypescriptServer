@@ -14,6 +14,7 @@
  *   You may elect to redistribute this code under either of these licenses.
  */
 /// <reference path="../../typings/main.d.ts" />
+
 import * as SockJS from 'sockjs-client';
 import * as Vertx from 'vertx.io-eventbus';
 
@@ -29,40 +30,38 @@ interface Handler {
 }
 
 export default class EventBus implements Vertx {
-    
+    private tmp;
     private static _url:string;
     private static _uniqueInstance:EventBus;
     private static _socket:__SockJSClient.SockJSClass;
     private defaultHeaders: {[key:string]:string};
-    private pingInterval:number = 55000;
-    private pingTimerID:NodeJS.Timer;
+    private pingInterval:number;
+    private pingTimerID:number=0;
     private static state:EventBusState;
     private handlers:Array<Handler>;
     private replyHandlers:Array<Handler>;
     
     
     constructor(options?:any, private callbackOnOpen?:Function, private callbackOnClose?:Function){
-        if (EventBus._url){
-                
+        if (EventBusState.CLOSED){
+                    this.pingInterval = 5000;
                     EventBus.state = EventBusState.CONNECTING;
                     EventBus._socket =new SockJS(EventBus._url);
                     if (options && options.vertxbus_ping_interval){
                         this.pingInterval = options.vertxbus_ping_interval;
                     }
-                    
                     EventBus._socket.onopen = function(){
-                        this.pingTimerID = setInterval(function(){
-                            EventBus._socket.send(JSON.stringify("{type:\'ping\'}"));
-                        }, this.pingInterval);
                         EventBus.state = EventBusState.OPEN;
+                        EventBus._uniqueInstance.pingTimerID = setInterval(EventBus._uniqueInstance.sendPingFunc, 5000);
                     };
                     
                     EventBus._socket.onclose = function() {
                         EventBus.state=EventBusState.CLOSED;
-                        if (this.pingTimerID){
-                            clearInterval(this.pingTimerID);
-                            this.onClose(callbackOnClose);
-                        }
+                        console.log('close');
+                        //if (this.pingTimerID){
+                         //   clearInterval(this.pingTimerID);
+                         //   this.onClose(callbackOnClose);
+                        //}
                     };
                     
                     EventBus._socket.onmessage = function (e:any) {
@@ -105,7 +104,6 @@ export default class EventBus implements Vertx {
                         }
                         
                     };
-                    
         }
     }
     
@@ -117,28 +115,12 @@ export default class EventBus implements Vertx {
         return EventBus._uniqueInstance;
     }
     
-    public makeUUID():string {
-         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-                .replace(/[xy]/g,function (a, b) {
-                                    return b = Math.random() * 16, (a == 'y' ? b & 3 | 8 : b | 0).toString(16);
-                                }
-                );
-    }
-    
-    public mergeHeaders(defaultHeaders:any , headers:any ): any {
-        if (defaultHeaders && !headers){
-            return defaultHeaders;
-        }
-        for(var headerName in defaultHeaders) {
-            if (headers[headerName]===undefined){
-                headers[headerName]=defaultHeaders[headerName];
-            }
-        }
-        return headers || {};        
+    private sendPingFunc():Function {
+        return this.sendPing;
     }
     
     public sendPing():void {
-        EventBus._socket.send(JSON.stringify("{type:\'ping\'}"));
+       this.send('ping', JSON.stringify("{'ping':'asdf'}"))
     }
     
     public send(address:string, message:any, headers?:any, callback?:Function) : void {
@@ -223,7 +205,27 @@ export default class EventBus implements Vertx {
       }
     }
     
-    public onerror(err:Error):void {
+    private makeUUID():string {
+         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+                .replace(/[xy]/g,function (a, b) {
+                                    return b = Math.random() * 16, (a == 'y' ? b & 3 | 8 : b | 0).toString(16);
+                                }
+                );
+    }
+    
+    private mergeHeaders(defaultHeaders:any , headers:any ): any {
+        if (defaultHeaders && !headers){
+            return defaultHeaders;
+        }
+        for(var headerName in defaultHeaders) {
+            if (headers[headerName]===undefined){
+                headers[headerName]=defaultHeaders[headerName];
+            }
+        }
+        return headers || {};        
+    }
+    
+    private onerror(err:Error):void {
        try{
            console.error(err);
        } catch(e){}
@@ -250,7 +252,6 @@ export default class EventBus implements Vertx {
     }
     
     private checkEventBusOpen():void{
-        EventBus.state = EventBusState.OPEN;
         if (EventBus.state != EventBusState.OPEN ) {
             throw new Error('INVALID_STATE_ERR');
         }
