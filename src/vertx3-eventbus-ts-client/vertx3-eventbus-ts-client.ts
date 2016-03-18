@@ -26,19 +26,29 @@ enum EventBusState {
     CLOSED
 }
 
+class MessageType {
+    public static REPLY:string="reply";
+    public static SEND:string = "send";
+    public static PUBLISH:string = "publish";
+    public static REGISTER:string = "register";
+    public static UNREGISTER:string = "unregister";
+}
 
-var _instance:EvenBusImpl;
 
-export = EvenBusImpl;
+var _instance:EventBusImpl;
 
-class EvenBusImpl implements IEventBus {
+export = EventBusImpl;
 
-    public static _instance:EvenBusImpl;
-    private  options: any;
+class EventBusImpl implements IEventBus {
+
+    private static _instance:EventBusImpl;
+    private static sockJSConn:__SockJSClient.SockJSClass;
+    private static state:EventBusState = EventBusState.CONNECTING;
+        
+    private options: any;
     private pingInterval: number = 5000;
-    private pingTimerID;
-    public sockJSConn: any;
-    private state:EventBusState = EventBusState.CONNECTING;
+    private pingTimerID:number;
+
     private handlers = {};
     private replyHandlers = {};
     private defaultHeaders = null;
@@ -51,75 +61,84 @@ class EvenBusImpl implements IEventBus {
     * @constructor
    */
     constructor(url: string, options?: any) {
-        _instance = this;
-        this.sockJSConn = new SockJs(url, null, options);
+        if (! _instance) {
+            _instance = this;
+            EventBusImpl.sockJSConn = new SockJs(url, null, options);
 
-        this.sockJSConn.onopen = function() {
-            _instance.sendPing();
-            _instance.pingTimerID = setInterval(_instance.sendPing, _instance.pingInterval);
-            _instance.state = EventBusState.OPEN;
-            _instance.onopen();
-        };
-        
-        
-        this.sockJSConn.onclose = function() {
-            _instance.state = EventBusState.CLOSED;
-            if (_instance.pingTimerID) clearInterval(_instance.pingTimerID);
-            _instance.onclose();
-        };
-        
-        this.sockJSConn.onmessage = function(e) {
-            var json = JSON.parse(e.data);
+            EventBusImpl.sockJSConn.onopen = function() {
+                _instance.sendPing();
+                _instance.pingTimerID = setInterval(_instance.sendPing, _instance.pingInterval);
+                EventBusImpl.state = EventBusState.OPEN;
+                _instance.onopen();
+            };
+            
+            
+            EventBusImpl.sockJSConn.onclose = function() {
+                EventBusImpl.state = EventBusState.CLOSED;
+                if (_instance.pingTimerID) clearInterval(_instance.pingTimerID);
+                _instance.onclose();
+            };
+            
+            EventBusImpl.sockJSConn.onmessage = function(e) {
+                var json = JSON.parse(e.data);
 
-            // define a reply function on the message itself
-            if (json.replyAddress) {
-                Object.defineProperty(json, 'reply', {
-                    value: function(message, headers, callback) {
-                        _instance.send(json.replyAddress, message, headers, callback);
+                // define a reply function on the message itself
+                if (json.replyAddress) {
+                    Object.defineProperty(json, MessageType.REPLY, {
+                        value: function(message, headers, callback) {
+                            _instance.send(json.replyAddress, message, headers, callback);
+                        }
+                    });
+                }
+
+                if (_instance.handlers[json.address]) {
+                    // iterate all registered handlers
+                    var handlers = _instance.handlers[json.address];
+                    for (var i = 0; i < handlers.length; i++) {
+                        if (json.type === 'err') {
+                            handlers[i]({ failureCode: json.failureCode, failureType: json.failureType, message: json.message });
+                        } else {
+                            handlers[i](null, json);
+                        }
                     }
-                });
-            }
-
-            if (_instance.handlers[json.address]) {
-                // iterate all registered handlers
-                var handlers = _instance.handlers[json.address];
-                for (var i = 0; i < handlers.length; i++) {
+                } else if (_instance.replyHandlers[json.address]) {
+                    // Might be a reply message
+                    var handler = _instance.replyHandlers[json.address];
+                    delete _instance.replyHandlers[json.address];
                     if (json.type === 'err') {
-                        handlers[i]({ failureCode: json.failureCode, failureType: json.failureType, message: json.message });
+                        handler({ failureCode: json.failureCode, failureType: json.failureType, message: json.message });
                     } else {
-                        handlers[i](null, json);
+                        handler(null, json);
                     }
-                }
-            } else if (_instance.replyHandlers[json.address]) {
-                // Might be a reply message
-                var handler = _instance.replyHandlers[json.address];
-                delete _instance.replyHandlers[json.address];
-                if (json.type === 'err') {
-                    handler({ failureCode: json.failureCode, failureType: json.failureType, message: json.message });
                 } else {
-                    handler(null, json);
-                }
-            } else {
-                if (json.type === 'err') {
-                    self.onerror(json);
-                } else {
-                    try {
-                        console.warn('No handler found for message: ', json);
-                    } catch (e) {
-                        // dev tools are disabled so we cannot use console on IE
+                    if (json.type === 'err') {
+                        self.onerror(json);
+                    } else {
+                        try {
+                            console.warn('No handler found for message: ', json);
+                        } catch (e) {
+                            // dev tools are disabled so we cannot use console on IE
+                        }
                     }
                 }
             }
         }
     }
+    
+    public getInstance(url?:string, options?:any): IEventBus {
+        if (! EventBusImpl._instance ) {
+            EventBusImpl._instance = new EventBusImpl(url, options);
+        }
+        return EventBusImpl._instance;
+    }
 
-    makeUUID() {
+    private makeUUID():string {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(a, b) {
             return b = Math.random() * 16, (a == 'y' ? b & 3 | 8 : b | 0).toString(16);
         });
     }
 
-    mergeHeaders(defaultHeaders, headers) {
+    private mergeHeaders(defaultHeaders:any, headers:any):any {
         if (defaultHeaders) {
             if (!headers) {
                 return defaultHeaders;
@@ -136,22 +155,22 @@ class EvenBusImpl implements IEventBus {
         return headers || {};
     }
     
-    onopen(){
+    private onopen(){
         return;
     }
     
-    onclose(){
+    private onclose(){
         return;
     }
   
-    onerror(err) {
+    private onerror(err) {
         try {
             console.error(err);
         } catch (e) {}
     };
 
-    sendPing() {
-        _instance.sockJSConn.send(JSON.stringify({ type: 'ping' }));
+    private sendPing() {
+        EventBusImpl.sockJSConn.send(JSON.stringify({ type: 'ping' }));
     };
 
     /**
@@ -164,9 +183,7 @@ class EvenBusImpl implements IEventBus {
      */  
     send(address:string, message:any, headers:any, callback:Function) {
         // are we ready?
-        if (this.state != EventBusState.OPEN) {
-            throw new Error('INVALID_STATE_ERR');
-        }
+        EventBusImpl.checkStatus();
 
         if (typeof headers === 'function') {
             callback = headers;
@@ -174,7 +191,7 @@ class EvenBusImpl implements IEventBus {
         }
 
         var envelope:any = {
-            type: 'send',
+            type: MessageType.SEND,
             address: address,
             headers: _instance.mergeHeaders(this.defaultHeaders, headers),
             body: message
@@ -186,7 +203,7 @@ class EvenBusImpl implements IEventBus {
             this.replyHandlers[replyAddress] = callback;
         }
 
-        this.sockJSConn.send(JSON.stringify(envelope));
+        EventBusImpl.sockJSConn.send(JSON.stringify(envelope));
     };
 
     /**
@@ -198,12 +215,10 @@ class EvenBusImpl implements IEventBus {
    */
     publish(address:string, message:any, headers:any) {
         // are we ready?
-        if (this.state != EventBusState.OPEN) {
-            throw new Error('INVALID_STATE_ERR');
-        }
+        EventBusImpl.checkStatus();
 
-        this.sockJSConn.send(JSON.stringify({
-            type: 'publish',
+        EventBusImpl.sockJSConn.send(JSON.stringify({
+            type: MessageType.PUBLISH,
             address: address,
             headers: _instance.mergeHeaders(this.defaultHeaders, headers),
             body: message
@@ -219,9 +234,7 @@ class EvenBusImpl implements IEventBus {
      */
     registerHandler(address:string, headers:any, callback:Function) {
         // are we ready?
-        if (this.state != EventBusState.OPEN) {
-            throw new Error('INVALID_STATE_ERR');
-        }
+        EventBusImpl.checkStatus();
 
         if (typeof headers === 'function') {
             callback = headers;
@@ -232,8 +245,8 @@ class EvenBusImpl implements IEventBus {
         if (!this.handlers[address]) {
             this.handlers[address] = [];
             // First handler for this address so we should register the connection
-            this.sockJSConn.send(JSON.stringify({
-                type: 'register',
+            EventBusImpl.sockJSConn.send(JSON.stringify({
+                type: MessageType.REGISTER,
                 address: address,
                 headers: _instance.mergeHeaders(this.defaultHeaders, headers)
             }));
@@ -251,9 +264,7 @@ class EvenBusImpl implements IEventBus {
      */
     unregisterHandler(address:string, headers:any, callback:Function) {
         // are we ready?
-        if (this.state != EventBusState.OPEN) {
-            throw new Error('INVALID_STATE_ERR');
-        }
+        EventBusImpl.checkStatus();
 
         var handlers = this.handlers[address];
 
@@ -269,8 +280,8 @@ class EvenBusImpl implements IEventBus {
                 handlers.splice(idx, 1);
                 if (handlers.length === 0) {
                     // No more local handlers so we should unregister the connection
-                    this.sockJSConn.send(JSON.stringify({
-                        type: 'unregister',
+                    EventBusImpl.sockJSConn.send(JSON.stringify({
+                        type: MessageType.UNREGISTER,
                         address: address,
                         headers: _instance.mergeHeaders(this.defaultHeaders, headers)
                     }));
@@ -285,7 +296,13 @@ class EvenBusImpl implements IEventBus {
      * Closes the connection to the EvenBus Bridge.
      */
     close() {
-        this.state = EventBusState.CLOSING;
-        this.sockJSConn.close();
+        EventBusImpl.state = EventBusState.CLOSING;
+        EventBusImpl.sockJSConn.close();
     };
+    
+    private static checkStatus():void {
+        if (EventBusImpl.state != EventBusState.OPEN) {
+            throw new Error('INVALID_STATE_ERR');
+        }
+    }
 }

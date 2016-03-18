@@ -2,6 +2,14 @@ declare module 'Vertx' {
 
     interface IEventBus {
         /**
+         * Create or get an instance
+         *
+         * @param {String} url
+         * @param {Object} options
+         */
+        getInstance(url?:string, options?:any): IEventBus;
+        
+        /**
          * Send a message
          *
          * @param {String} address
@@ -9,7 +17,7 @@ declare module 'Vertx' {
          * @param {Object} [headers]
          * @param {Function} [callback]
          */
-        send(address: string, message: any, headers: any, callback: Function): void;
+        send(address: string, message: any, headers?: any, callback?: Function): void;
         /**
         * Publish a message
         *
@@ -17,7 +25,7 @@ declare module 'Vertx' {
         * @param {Object} message
         * @param {Object} [headers]
     */
-        publish(address: string, message: any, headers: any): void;
+        publish(address: string, message: any, headers?: any): void;
         /**
          * Register a new handler
          *

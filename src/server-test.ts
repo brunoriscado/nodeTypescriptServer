@@ -16,7 +16,6 @@ app.use(bodyParser.json());
 const port:number = process.env.PORT || 8088;
 const router = express.Router();
 
-//EventBus Stuff
 
 router.get('/event', function (req, res) {
     res.setHeader("Content-Type", "application/json");
