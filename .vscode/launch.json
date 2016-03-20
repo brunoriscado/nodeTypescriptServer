@@ -5,10 +5,10 @@
 			"name": "Launch",
 			"type": "node",
 			"request": "launch",
-			"program": "lib/server-test.js",
+			"program": "${workspaceRoot}/lib/server-test.js",
 			"stopOnEntry": false,
 			"args": [],
-			"cwd": ".",
+			"cwd": "${workspaceRoot}",
 			"runtimeExecutable": null,
 			"runtimeArgs": [
 				"--nolazy",
@@ -19,7 +19,7 @@
 			},
 			"externalConsole": false,
 			"sourceMaps": true,
-			"outDir": "lib"
+			"outDir": "${workspaceRoot}/lib"
 		},
 		{
 			"name": "Attach",

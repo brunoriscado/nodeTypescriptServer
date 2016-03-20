@@ -2,19 +2,28 @@
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import { IEventBus } from 'Vertx';
-import EventBus = require("./vertx3-eventbus-ts-client/vertx3-eventbus-ts-client");
+import { IEventBus } from 'EventBus';
+import io = require("./vertx3-ts-client/vertx3-ts-client");
 
 const app = express();
-
-const eventBus:IEventBus = new EventBus("http://localhost:8089/eventbus/"); 
-
+ 
 // configure our app to use bodyParser(it let us get the json data from a POST)
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 const port:number = process.env.PORT || 8088;
 const router = express.Router();
+
+function onOpenMessage() {
+    console.log('Event Bus opened...');
+}
+
+function onMessage(e:any) {
+    console.log('Event Bus message send:\n'+JSON.stringify(e));
+}
+
+
+const eventBus:IEventBus = io.Vertx.EventBusImpl.getInstance("http://localhost:8089/eventbus/", undefined, onOpenMessage, onMessage);
 
 
 router.get('/event', function (req, res) {

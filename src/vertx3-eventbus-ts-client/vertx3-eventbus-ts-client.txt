@@ -169,9 +169,7 @@ class EventBusImpl implements IEventBus {
         } catch (e) {}
     };
 
-    private sendPing() {
-        EventBusImpl.sockJSConn.send(JSON.stringify({ type: 'ping' }));
-    };
+    
 
     /**
      * Send a message
