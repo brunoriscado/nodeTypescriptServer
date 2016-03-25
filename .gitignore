@@ -1,6 +1,8 @@
 lib/
 node_modules/
-typings/
+typings/browser/
+typings/main/
+typings/browser.d.ts
 .idea/
 .idea/*
 build/

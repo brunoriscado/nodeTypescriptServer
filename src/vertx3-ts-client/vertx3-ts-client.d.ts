@@ -39,5 +39,8 @@ declare module 'EventBus' {
          */
         close(): void;
         
+        
+        onError(e:any):void;
+        
     }
 }

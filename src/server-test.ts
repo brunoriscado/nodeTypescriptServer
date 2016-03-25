@@ -13,17 +13,31 @@ app.use(bodyParser.json());
 
 const port:number = process.env.PORT || 8088;
 const router = express.Router();
+;
 
-function onOpenMessage() {
-    console.log('Event Bus opened...');
-}
 
 function onMessage(e:any) {
-    console.log('Event Bus message send:\n'+JSON.stringify(e));
+    console.log('Event Bus onMessage send/received:\n'+JSON.stringify(e));
+}
+
+function onOpen() {
+    console.log('Event Bus opened...');
+    registerHandler();
 }
 
 
-const eventBus:IEventBus = io.Vertx.EventBusImpl.getInstance("http://localhost:8089/eventbus/", undefined, onOpenMessage, onMessage);
+const eventBus = io.Vertx.EventBusImpl.getInstance("http://localhost:8089/eventbus/", undefined, onOpen, onMessage);
+
+
+function registerHandlerCallback(e:any) {
+    console.log('Event Bus registerHandlerCallback received:\n'+JSON.stringify(e));
+}
+
+
+function registerHandler(e?:any) {
+    console.log("try to register a new handler:"+ JSON.stringify(e));
+    eventBus.registerHandler("TEST-HANDLER", undefined, registerHandlerCallback);
+}
 
 
 router.get('/event', function (req, res) {
@@ -33,7 +47,6 @@ router.get('/event', function (req, res) {
                        res.end(json.body);
                  });
 });
-
 
 
 // prefixed all routes with /api

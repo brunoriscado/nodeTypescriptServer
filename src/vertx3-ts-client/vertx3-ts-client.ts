@@ -103,7 +103,7 @@ export module Vertx {
                         }
                     } else {
                         if (json.type === 'err') {
-                            self.onerror(json);
+                            EventBusImpl._instance.onError(json);
                         } else {
                             try {
                                 console.warn('No handler found for message: ', json);
@@ -197,7 +197,7 @@ export module Vertx {
             if (!headers) headers = {};
 
             // ensure it is an array
-            if (!EventBusImpl._instance.handlers[address]) {
+            if ( ! EventBusImpl._instance.handlers[address] ) {
                 EventBusImpl._instance.handlers[address] = [];
                 // First handler for this address so we should register the connection
                 EventBusImpl.sockJSConn.send(JSON.stringify({
@@ -255,6 +255,11 @@ export module Vertx {
             }
         };
         
+        
+        onError(e:any) : void {
+            console.error(JSON.stringify(e));
+            throw new Error(e);
+        };
         
 
         private static checkStatus(): void {
